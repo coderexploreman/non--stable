@@ -1,0 +1,13 @@
+PKG_NAME=python
+PKG_VERSION=
+PKG_DEPENDS=
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- https://www.python.org/ftp/python/ | grep -o "[0-9]+\.[0-9]+\.[0-9]+/" | sort -V | tail -n1 | tr -d /)
+wget "https://www.python.org/ftp/python/$latest/Python-$latest.tgz" -O "Python-$latest.tgz"
+tar xf "Python-$latest.tgz" --strip-components=1
+
+./configure --prefix=/usr --enable-optimizations
+make DESTDIR="$DESTDIR" -j$(nproc)
+make DESTDIR="$DESTDIR" install
+'

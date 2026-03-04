@@ -1,0 +1,16 @@
+PKG_NAME=gcc
+PKG_VERSION=
+PKG_DEPENDS=
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+# fetch latest gcc release
+latest=$(wget -qO- https://ftp.gnu.org/gnu/gcc/ | grep -o "gcc-[0-9\.]*" | sort -V | tail -n1)
+wget "https://ftp.gnu.org/gnu/gcc/$latest/$latest.tar.xz" -O "$latest.tar.xz"
+tar xf "$latest.tar.xz" --strip-components=1
+
+# GCC has complicated bootstrapping; using the standard build procedure
+mkdir -p build && cd build
+../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib
+make DESTDIR="$DESTDIR" -j$(nproc)
+make DESTDIR="$DESTDIR" install
+'

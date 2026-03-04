@@ -1,0 +1,12 @@
+PKG_NAME=openssl
+PKG_VERSION=
+PKG_DEPENDS=
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- https://www.openssl.org/source/ | grep -o "openssl-[0-9\.]*[a-z]*\.tar\.gz" | sort -V | tail -n1)
+wget "https://www.openssl.org/source/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./config --prefix=/usr
+make DESTDIR="$DESTDIR" install_sw
+'

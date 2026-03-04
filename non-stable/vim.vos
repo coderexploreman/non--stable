@@ -1,0 +1,16 @@
+PKG_NAME=vim
+PKG_VERSION=
+PKG_DEPENDS=
+# PKG_SOURCE_URL is a placeholder; build logic fetches latest release archive
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+# grab latest tarball from GitHub releases using wget
+latest=$(wget -qO- https://github.com/vim/vim/releases/latest | \
+    grep -Eo "/vim/vim/archive/refs/tags/v[0-9\.]+\.tar\.gz" | head -n1 | cut -d/ -f5)
+wget "https://github.com/vim/vim/archive/refs/tags/${latest}" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./configure --with-features=huge --enable-multibyte --enable-cscope \
+            --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

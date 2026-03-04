@@ -1,0 +1,28 @@
+PKG_NAME=htop
+PKG_VERSION=
+PKG_DEPENDS=ncurses
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+# get latest and set version field
+latest=$(wget -qO- https://github.com/htop-dev/htop/releases/latest | grep -Eo "/htop-dev/htop/archive/refs/tags/[0-9\.]+\.tar\.gz" | head -n1 | cut -d/ -f5)
+ver=${latest%.tar\.gz}
+pkg=$(basename "$(dirname "$(pwd)")")
+vosfile=""
+while read -r repo; do
+    [ -z "$repo" ] && continue
+    if [ -f "$repo/$pkg.vos" ]; then
+        vosfile="$repo/$pkg.vos"; break
+    fi
+    for f in "$repo"/${pkg}-*.vos; do
+        [ -f "$f" ] || continue
+        vosfile="$f"; break 2
+    done
+done < "$REPOS"
+[ -n "$vosfile" ] && sed -i "s/^PKG_VERSION=.*/PKG_VERSION=$ver/" "$vosfile"
+
+wget "https://github.com/htop-dev/htop/releases/download/$ver/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./autogen.sh && ./configure --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

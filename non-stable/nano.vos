@@ -1,0 +1,16 @@
+PKG_NAME=nano
+PKG_VERSION=
+PKG_DEPENDS=
+# PKG_SOURCE_URL is unused; build commands fetch latest release via wget
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+# determine latest tarball from upstream and download it
+latest=$(wget -qO- https://nano-editor.org/dist/v7/ | \
+    grep -o "nano-[0-9]\+\.[0-9]\+\.[0-9]\+\.tar\.xz" | \
+    sort -V | tail -n1)
+wget "https://nano-editor.org/dist/v7/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./configure --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

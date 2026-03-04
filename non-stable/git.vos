@@ -1,0 +1,34 @@
+PKG_NAME=git
+PKG_VERSION=
+PKG_DEPENDS=curl,openssl
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+# figure out version and update manifest so pkgid will include it
+latest=$(wget -qO- https://github.com/git/git/releases/latest | \
+    grep -Eo "/git/git/archive/refs/tags/v[0-9\.]+\.tar\.gz" | head -n1 | cut -d/ -f5)
+ver=${latest#v}
+ver=${ver%.tar.gz}
+# locate the .vos file and rewrite PKG_VERSION
+pkg=$(basename "$(dirname "$(pwd)")")
+vosfile=""
+while read -r repo; do
+    [ -z "$repo" ] && continue
+    if [ -f "$repo/$pkg.vos" ]; then
+        vosfile="$repo/$pkg.vos"
+        break
+    fi
+    for f in "$repo"/${pkg}-*.vos; do
+        [ -f "$f" ] || continue
+        vosfile="$f"
+        break 2
+    done
+done < "$REPOS"
+[ -n "$vosfile" ] && sed -i "s/^PKG_VERSION=.*/PKG_VERSION=$ver/" "$vosfile"
+
+wget "https://github.com/git/git/archive/refs/tags/${latest}" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+make configure
+./configure --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

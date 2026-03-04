@@ -1,0 +1,12 @@
+PKG_NAME=sudo
+PKG_VERSION=
+PKG_DEPENDS=
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- https://www.sudo.ws/dist/ | grep -o "sudo-[0-9\.]*\.tar\.gz" | sort -V | tail -n1)
+wget "https://www.sudo.ws/dist/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./configure --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

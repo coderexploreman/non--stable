@@ -1,0 +1,11 @@
+PKG_NAME=tree
+PKG_VERSION=
+PKG_DEPENDS=
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- http://mama.indstate.edu/users/ice/tree/ | grep -Eo "tree-[0-9\.]+\.tgz" | sort -V | tail -n1)
+wget "http://mama.indstate.edu/users/ice/tree/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+make DESTDIR="$DESTDIR" install
+'

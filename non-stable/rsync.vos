@@ -1,0 +1,28 @@
+PKG_NAME=rsync
+PKG_VERSION=
+PKG_DEPENDS=openssl
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- https://download.samba.org/pub/rsync/ | grep -Eo "rsync-[0-9\.]+\.tar\.gz" | sort -V | tail -n1)
+ver=${latest#rsync-}
+ver=${ver%.tar\.gz}
+pkg=$(basename "$(dirname "$(pwd)")")
+vosfile=""
+while read -r repo; do
+    [ -z "$repo" ] && continue
+    if [ -f "$repo/$pkg.vos" ]; then
+        vosfile="$repo/$pkg.vos"; break
+    fi
+    for f in "$repo"/${pkg}-*.vos; do
+        [ -f "$f" ] || continue
+        vosfile="$f"; break 2
+    done
+done < "$REPOS"
+[ -n "$vosfile" ] && sed -i "s/^PKG_VERSION=.*/PKG_VERSION=$ver/" "$vosfile"
+
+wget "https://download.samba.org/pub/rsync/$latest" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+./configure --prefix=/usr
+make DESTDIR="$DESTDIR" install
+'

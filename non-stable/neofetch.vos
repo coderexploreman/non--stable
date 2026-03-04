@@ -1,0 +1,16 @@
+PKG_NAME=neofetch
+PKG_VERSION=
+PKG_DEPENDS=
+# fetch latest release from GitHub instead of hard‑coding URL
+PKG_SOURCE_URL=#
+PKG_BUILD_COMMANDS='
+latest=$(wget -qO- https://github.com/dylanaraps/neofetch/releases/latest | \
+    grep -Eo "/dylanaraps/neofetch/archive/refs/tags/[0-9\.]+\.tar\.gz" | \
+    head -n1 | cut -d/ -f5)
+wget "https://github.com/dylanaraps/neofetch/archive/refs/tags/${latest}" -O "$latest"
+tar xf "$latest" --strip-components=1
+
+mkdir -p "$DESTDIR/usr/bin"
+cp neofetch "$DESTDIR/usr/bin/"
+chmod +x "$DESTDIR/usr/bin/neofetch"
+'
